@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+*.md
+.env
+.env.local
+.dockerignore
+docker
+.vscode
+.idea
+coverage
+test
