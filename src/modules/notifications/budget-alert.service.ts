@@ -11,28 +11,17 @@ export class BudgetAlertService {
     private notifications: NotificationsService,
   ) {}
 
-  async checkAfterTransaction(
-    householdId: string,
-    categoryId: string,
-    userId: string,
-  ) {
+  async checkAfterTransaction(householdId: string, categoryId: string, userId: string) {
     const now = new Date();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
 
-    const budget = await this.prisma.budget.findUnique({
-      where: {
-        householdId_categoryId_month_year: {
-          householdId,
-          categoryId,
-          month,
-          year,
-        },
-      },
+    const budgets = await this.prisma.budget.findMany({
+      where: { householdId, categoryId, month, year },
       include: { category: true },
     });
 
-    if (!budget) return;
+    if (budgets.length === 0) return;
 
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
@@ -52,12 +41,12 @@ export class BudgetAlertService {
     if (!spent) return;
 
     const spentNum = Number(spent);
-    const budgetNum = Number(budget.amount);
-    const pct = (spentNum / budgetNum) * 100;
+    const totalBudget = budgets.reduce((sum, b) => sum + Number(b.amount), 0);
+    const pct = (spentNum / totalBudget) * 100;
 
     if (pct < 80) return;
 
-    const categoryName = budget.category?.name ?? 'Unknown';
+    const categoryName = budgets[0].category?.name ?? 'Unknown';
     const label = pct >= 100 ? 'exceeded' : 'reached 80% of';
 
     const members = await this.prisma.householdMember.findMany({
