@@ -40,13 +40,13 @@ export class BudgetsController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create or update a budget entry' })
-  async createOrUpdate(
+  @ApiOperation({ summary: 'Create a budget entry' })
+  async create(
     @Param('id') householdId: string,
     @CurrentUser() user: User,
     @Body(new CreateBudgetPipe()) dto: CreateBudgetDto,
   ) {
-    return this.budgetsService.createOrUpdate(householdId, user.id, dto);
+    return this.budgetsService.create(householdId, user.id, dto);
   }
 
   @Post('copy')

@@ -42,22 +42,9 @@ export class BudgetsService {
     });
   }
 
-  async createOrUpdate(householdId: string, userId: string, dto: CreateBudgetDto) {
-    const budget = await this.prisma.budget.upsert({
-      where: {
-        householdId_categoryId_month_year: {
-          householdId,
-          categoryId: dto.categoryId,
-          month: dto.month,
-          year: dto.year,
-        },
-      },
-      update: {
-        amount: dto.amount,
-        currency: dto.currency || 'IDR',
-        note: dto.note !== undefined ? dto.note || null : undefined,
-      },
-      create: {
+  async create(householdId: string, userId: string, dto: CreateBudgetDto) {
+    const budget = await this.prisma.budget.create({
+      data: {
         householdId,
         categoryId: dto.categoryId,
         month: dto.month,
@@ -88,21 +75,8 @@ export class BudgetsService {
 
     const copied = [];
     for (const budget of prevBudgets) {
-      const result = await this.prisma.budget.upsert({
-        where: {
-          householdId_categoryId_month_year: {
-            householdId,
-            categoryId: budget.categoryId,
-            month: dto.toMonth,
-            year: dto.toYear,
-          },
-        },
-        update: {
-          amount: budget.amount,
-          currency: budget.currency,
-          note: budget.note,
-        },
-        create: {
+      const result = await this.prisma.budget.create({
+        data: {
           householdId,
           categoryId: budget.categoryId,
           month: dto.toMonth,

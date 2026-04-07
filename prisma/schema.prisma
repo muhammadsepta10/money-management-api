@@ -90,7 +90,6 @@ model Budget {
   createdBy    User          @relation("BudgetCreatedBy", fields: [createdById], references: [id])
   transactions Transaction[]
 
-  @@unique([householdId, categoryId, month, year])
   @@index([householdId, year, month], map: "idx_budgets_household_period")
   @@map("budgets")
 }
